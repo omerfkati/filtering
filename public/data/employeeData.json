@@ -1,0 +1,33 @@
+{
+    "success"    : true,
+
+    "resources"  : {
+
+        "rows" : [
+            {
+                "id"        : "a",
+                "name"      : "Joris",
+                "role"      : "tekenwerk",
+                "important" : false
+            },
+            {
+                "id"        : "b",
+                "name"      : "Jasir",
+                "role"      : "tekenwerk",
+                "important" : false
+            },
+            {
+                "id"        : "c",
+                "name"      : "Jan",
+                "role"      : "in bedrijf stellen",
+                "important" : false
+            }
+
+        ]
+    },
+    "events"     : {
+        "rows" : [
+
+        ]
+    }
+}
