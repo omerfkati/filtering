@@ -6,7 +6,10 @@ import {DateHelper} from '@bryntum/scheduler/scheduler.umd';
 const schedulerConfig = {
     flex: '1 1 50%',
     tree: true,
-    transformFlatData: true,
+    resourceStore : {
+        transformFlatData: true,
+        tree : true
+    },
 
     eventStyle: 'colored',
     eventColor: null,
@@ -14,16 +17,19 @@ const schedulerConfig = {
         {
             type: 'tree',
             text: 'Name',
-            width: 340,
+            width: 200,
             field: 'name'
+        },
+        {
+            text: 'Uren',
+            field: 'hours',
+            width: 140,
         }
     ],
     filterBarFeature: true,
     stripeFeature: true,
     timeRangesFeature: true,
-    features: {
-        tree: true,
-    },
+    treeFeature : true,
 
     barMargin: 5,
     rowHeight: 55,
@@ -32,13 +38,6 @@ const schedulerConfig = {
     endDate: new Date(2017, 1, 7, 18),
     viewPreset: 'hourAndDay',
 
-    data: [
-        {id: 1, name: 'ABBA'},
-        {id: 2, name: 'Agnetha', parentId: 1},
-        {id: 3, name: 'Bjorn', parentId: 1},
-        {id: 4, name: 'Benny', parentId: 1},
-        {id: 5, name: 'Anni-Frid', parentId: 1}
-    ],
 
     // Specialized body template with header and footer
     eventBodyTemplate: data => `
