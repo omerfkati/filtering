@@ -47,6 +47,7 @@ const App = () => {
 
     }, []);
 
+    // This maps the events to the right resources
     const updateAssignmentStore = async () => {
         const {eventStore, assignmentStore} = scheduler.current.instance;
         const tempAssignments = []
@@ -64,7 +65,6 @@ const App = () => {
         for (let {data} of eventStore.allRecords) {
             tempAssignments.push({...data, resourceId: data.employeeID, eventId: data.id})
         }
-        console.log(eventStore, tempAssignments)
         await assignmentStore.loadDataAsync(tempAssignments);
 
 
@@ -100,7 +100,6 @@ const App = () => {
         if (!scheduler) {
             return;
         }
-        console.log(schedulerObject.eventStore.allRecords)
         schedulerObject.resourceStore.filter('role', phase)
 
     }, []);
@@ -128,11 +127,6 @@ const App = () => {
                     toggleProjects={() => setShowProjects(!showProjects)}
                     toggleEmployees={() => setShowEmployees(!showEmployees)}
                 />
-                {/*<div className="demo-toolbar align-right">*/}
-                {/*<BryntumTextField {...findConfig} onInput={filterChangeHandler}/>*/}
-                {/*<BryntumTextField {...highlightConfig} onInput={highlightChangeHandler}/>*/}
-
-                {/*</div>*/}
                 {showProjects && <BryntumScheduler resources={[
                     {id: 0, name: 'Niels', hours: 100, expanded: true},
                     {id: 1, name: 'Project', hours: 40, expanded: true, parentId: 0},
