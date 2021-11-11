@@ -5,19 +5,19 @@
 
         "rows" : [
             {
-                "id"        : "a",
+                "id"        : 0,
                 "name"      : "Joris",
                 "role"      : "tekenwerk",
                 "important" : false
             },
             {
-                "id"        : "b",
+                "id"        : 1,
                 "name"      : "Jasir",
                 "role"      : "tekenwerk",
                 "important" : false
             },
             {
-                "id"        : "c",
+                "id"        : 2,
                 "name"      : "Jan",
                 "role"      : "in bedrijf stellen",
                 "important" : false

@@ -5,12 +5,9 @@ import React, {Fragment, useRef, useCallback, useState, useEffect} from 'react';
 
 import {
     BryntumScheduler,
-    BryntumTextField,
-    BryntumSplitter,
-    BryntumButton
+    BryntumSplitter
 } from '@bryntum/scheduler-react';
-import {DomClassList} from '@bryntum/scheduler/scheduler.umd';
-import {schedulerConfig, findConfig, highlightConfig, scheduler2Config} from './AppConfig';
+import {schedulerConfig, scheduler2Config} from './AppConfig';
 import './App.scss';
 import Popup from "./components/Popup";
 import SideBar from "./components/SideBar";
@@ -19,53 +16,59 @@ const App = () => {
     const scheduler = useRef(null);
     const scheduler2 = useRef(null);
 
-    // runs when value in the filter input field changes and filters the eventStore
-    const filterChangeHandler = useCallback(({value}) => {
-        const eventStore = scheduler.current.instance.eventStore;
-        value = value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-        eventStore.filter({
-            filters: event => event.name.match(new RegExp(value, 'i')),
-            replace: true
-        });
-    }, []);
-
-    // runs when value in the highlight input field changes and highlights the matched events
-    const highlightChangeHandler = useCallback(({value}) => {
-        const instance = scheduler.current.instance;
-
-        instance.eventStore.forEach(task => {
-            const taskClassList = new DomClassList(task.cls);
-            const matched = taskClassList.contains('b-match');
-
-            if (task.name.toLowerCase().indexOf(value) >= 0) {
-                if (!matched) {
-                    taskClassList.add('b-match');
-                }
-            } else if (matched) {
-                taskClassList.remove('b-match');
-            }
-            task.cls = taskClassList.value;
-        });
-
-        instance.element.classList[value.length > 0 ? 'add' : 'remove']('b-highlighting');
-    }, []);
+    const [events, setEvents] = useState([
+        {
+            id: 0,
+            employeeID: 0,
+            projectID: 2,
+            phase: "tekenwerk",
+            startDate: "2017-02-07 11:00",
+            endDate: "2017-02-07 14:00"
+        },
+    ])
 
     const [popupShown, showPopup] = useState(false);
     const [eventRecord, setEventRecord] = useState(null);
     const [eventStore, setEventStore] = useState(null);
     const [resourceStore, setResourceStore] = useState(null);
+    const [assignmentStore, setAssignmentStore] = useState(null);
     const [showEmployees, setShowEmployees] = useState(true);
     const [showProjects, setShowProjects] = useState(true);
     const [selectedEvent, setSelectedEvent] = useState('');
 
 
     useEffect(() => {
-        const {eventStore, resourceStore} = scheduler.current.instance;
+        const {eventStore, resourceStore, assignmentStore} = scheduler.current.instance;
         setEventStore(eventStore);
         setResourceStore(resourceStore);
+        setAssignmentStore(assignmentStore);
+        updateAssignmentStore()
+        updateAssignmentStore2()
 
     }, []);
+
+    const updateAssignmentStore = async () => {
+        const {eventStore, assignmentStore} = scheduler.current.instance;
+        const tempAssignments = []
+        for (let {data} of eventStore.allRecords) {
+            tempAssignments.push({...data, resourceId: data.projectID, eventId: data.id})
+        }
+        await assignmentStore.loadDataAsync(tempAssignments);
+
+
+    }
+
+    const updateAssignmentStore2 = async () => {
+        const {eventStore, assignmentStore} = scheduler2.current.instance;
+        const tempAssignments = []
+        for (let {data} of eventStore.allRecords) {
+            tempAssignments.push({...data, resourceId: data.employeeID, eventId: data.id})
+        }
+        console.log(eventStore, tempAssignments)
+        await assignmentStore.loadDataAsync(tempAssignments);
+
+
+    }
 
     useEffect(() => {
         if (showEmployees && showProjects) scheduler2.current.instance.addPartner(scheduler.current.instance);
@@ -126,18 +129,20 @@ const App = () => {
                     toggleEmployees={() => setShowEmployees(!showEmployees)}
                 />
                 {/*<div className="demo-toolbar align-right">*/}
-                    {/*<BryntumTextField {...findConfig} onInput={filterChangeHandler}/>*/}
-                    {/*<BryntumTextField {...highlightConfig} onInput={highlightChangeHandler}/>*/}
+                {/*<BryntumTextField {...findConfig} onInput={filterChangeHandler}/>*/}
+                {/*<BryntumTextField {...highlightConfig} onInput={highlightChangeHandler}/>*/}
 
                 {/*</div>*/}
                 {showProjects && <BryntumScheduler resources={[
-                    {id: 0, name: 'Niels', expanded: true},
-                    {id: 1, name: 'Project', hours: 10, expanded: true, parentId: 0},
+                    {id: 0, name: 'Niels', hours: 100, expanded: true},
+                    {id: 1, name: 'Project', hours: 40, expanded: true, parentId: 0},
                     {id: 2, name: 'RK1', hours: 10, parentId: 1},
-                    {id: 3, name: 'ZK2', parentId: 1},
-                    {id: 4, name: 'RK3', parentId: 1},
-                    {id: 5, name: 'RK4', parentId: 1}
+                    {id: 3, name: 'ZK2', hours: 10, parentId: 1},
+                    {id: 4, name: 'RK3', hours: 10, parentId: 1},
+                    {id: 5, name: 'RK4', hours: 10, parentId: 1}
                 ]}
+                                                   events={events}
+                                                   assignments={[]}
                                                    ref={scheduler}
                                                    onEventSelectionChange={selectionChangeHandler}
                                                    listeners={{
@@ -154,7 +159,15 @@ const App = () => {
                 {(showProjects && showEmployees) ? <BryntumSplitter/> : null}
                 {showEmployees &&
 
-                <BryntumScheduler ref={scheduler2} {...scheduler2Config} />
+                <BryntumScheduler ref={scheduler2} resources={[
+                    {
+                        id: 0,
+                        name: "Joris",
+                        role: "tekenwerk",
+                        important: false
+                    },
+
+                ]} events={events} {...scheduler2Config} />
                 }
                 <div>
                     {popupShown ? (
