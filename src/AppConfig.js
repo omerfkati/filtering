@@ -55,32 +55,6 @@ const schedulerConfig = {
     },
 };
 
-const findConfig = {
-    placeholder: 'Find tasks by name',
-    keyStrokeChangeDelay: 80,
-    clearable: true,
-    width: '12.5em',
-    triggers: {
-        filter: {
-            align: 'start',
-            cls: 'b-fa b-fa-filter'
-        }
-    }
-};
-
-const highlightConfig = {
-    placeholder: 'Highlight tasks',
-    keyStrokeChangeDelay: 80,
-    clearable: true,
-    width: '12.5em',
-    triggers: {
-        filter: {
-            align: 'start',
-            cls: 'b-fa b-fa-search'
-        }
-    }
-};
-
 const scheduler2Config = {
     flex: '1 1 50%',
 
@@ -126,18 +100,6 @@ const scheduler2Config = {
     endDate: new Date(2017, 1, 7, 18),
     viewPreset: 'hourAndDay',
 
-    // crudManager: {
-    //     autoLoad: true,
-    //     transport: {
-    //         load: {
-    //             url: 'data/employeeData.json'
-    //         }
-    //     },
-    //     // This config enables response validation and dumping of found errors to the browser console.
-    //     // It's meant to be used as a development stage helper only so please set it to false for production systems.
-    //     validateResponse: true
-    // },
-
     // Specialized body template with header and footer
     eventBodyTemplate: data => `
         <div class="b-sch-event-header">${data.headerText}</div>
@@ -154,4 +116,4 @@ const scheduler2Config = {
     },
 };
 
-export {schedulerConfig, scheduler2Config, findConfig, highlightConfig};
+export {schedulerConfig, scheduler2Config};
