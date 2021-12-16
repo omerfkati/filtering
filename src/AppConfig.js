@@ -11,8 +11,8 @@ const schedulerConfig = {
         tree: true
     },
 
-    eventStyle: 'colored',
-    eventColor: null,
+    // eventStyle: 'colored',
+    // eventColor: null,
     columns: [
         {
             type: 'tree',
@@ -54,7 +54,7 @@ const schedulerConfig = {
                     label: 'Fase',
                     // Provided items start at 100, and go up in 100s, so insert after first one
                     weight: 110,
-                    items: ['Tekenwerk']
+                    items: ['tekenwerk', "ibs"]
                 },
                 eventEmployeeField: {
                     type: 'combo',
@@ -62,7 +62,7 @@ const schedulerConfig = {
                     name: 'employeeID',
                     editable: false,
                     weight: 130,
-                    items: [0]
+                    items: ["Joris","Johan"]
 
                 },
                 linkField: {
@@ -79,8 +79,8 @@ const schedulerConfig = {
 const scheduler2Config = {
     flex: '1 1 50%',
 
-    eventStyle: 'colored',
-    eventColor: null,
+    // eventStyle: 'colored',
+    // eventColor: null,
     columns: [
         {
             type: 'resourceInfo',
@@ -126,40 +126,58 @@ const scheduler2Config = {
     // },
     features: {
 
-            eventEdit: {
-                // Uncomment to make event editor readonly from the start
-                // readOnly : true,
-                // Add items to the event editor
-                items: {
-                    // resourceField : resourceComboConfig,
+        eventEdit: {
+            // Uncomment to make event editor readonly from the start
+            // readOnly : true,
+            // Add items to the event editor
+            items: {
+                // resourceField : resourceComboConfig,
+                resourceField: {
+                    type: 'displayField',
+                    name: 'resourse',
+                },
 
-                    // Using this ref hooks dynamic toggling of fields per eventType up
-                    eventNewTypeField: {
-                        type: 'combo',
-                        name: 'phase',
-                        label: 'Fase',
-                        // Provided items start at 100, and go up in 100s, so insert after first one
-                        weight: 110,
-                        items: ['Tekenwerk','ibs']
-                    },
-                    eventProjectField: {
-                        type: 'combo',
-                        label: 'Project',
-                        name: 'projectID',
-                        editable: false,
-                        weight: 130,
-                        items: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+                // Using this ref hooks dynamic toggling of fields per eventType up
+                eventNewTypeField: {
+                    type: 'combo',
+                    name: 'phase',
+                    label: 'Fase',
+                    // Provided items start at 100, and go up in 100s, so insert after first one
+                    weight: 110,
+                    items: ['Tekenwerk', 'ibs']
+                },
+                eventProjectField: {
+                    type: 'combo',
+                    label: 'Project',
+                    name: 'projectID',
+                    editable: false,
+                    weight: 130,
+                    items: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
-                    },
-                    // linkField: {
-                    //     type: 'displayfield',
-                    //     label: 'Rool',
-                    //     name: 'role',
-                    //     weight: 600,
-                    // }
-                }
+                },
+                linkField: {
+                    type: 'displayField',
+                    label: 'role',
+                    name: 'role',
+                },
+
             }
-        },
+        }
+    },
+    listeners: {
+        beforeEventEditShow({editor, eventRecord}) {
+            console.log(editor, eventRecord.data.phase)
+            editor.widgetMap.linkField.value = eventRecord.data.phase
+            // const
+            //     equipmentCombo = editor.widgetMap.equipment,
+            //     volumeField = editor.widgetMap.volume;
+            //
+            // // update data in combo list
+            // equipmentCombo.items = this.equipmentStore.getRange();
+            // // update field visibility state
+            // volumeField.hidden = !eventRecord.hasVolume;
+        }
+    }
 };
 
 export {schedulerConfig, scheduler2Config};

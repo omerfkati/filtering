@@ -18,13 +18,14 @@ const App = () => {
     const [events, setEvents] = useState([
         {
             id: 0,
-            employeeID: 0,
+            employeeID: "Joris",
             projectID: 2,
             eventId: "0000000",
             name: "test",
             phase: "tekenwerk",
             startDate: "2017-02-07 11:00",
-            endDate: "2017-02-07 14:00"
+            endDate: "2017-02-07 14:00",
+            eventColor: "red"
         },
     ])
 
@@ -55,6 +56,7 @@ const App = () => {
             const otherStore = getOtherEventStore(source);
             const thisStore = getThisEventStore(source);
             const storeBool = source === scheduler1Ref.current.instance.eventStore
+            console.log(action, record)
             if (action === "update") {
 
                 const otherRecord = otherStore.findRecord("id", record.data.eventId);
@@ -79,7 +81,7 @@ const App = () => {
     const onEventRemove = useCallback(
         async ({source, records}) => {
             const otherStore = getOtherEventStore(source);
-            for (let record of records){
+            for (let record of records) {
                 const otherRecord = otherStore.findRecord("eventId", record.data.eventId);
                 otherStore.remove(otherRecord)
 
@@ -104,7 +106,7 @@ const App = () => {
         const {eventStore, assignmentStore} = scheduler1Ref.current.instance;
         const tempAssignments = []
         for (let {data} of eventStore.allRecords) {
-
+            console.log(eventStore.allRecords)
             tempAssignments.push({...data, resourceId: data.projectID, eventId: data.id})
         }
         await assignmentStore.loadDataAsync(tempAssignments);
@@ -142,6 +144,16 @@ const App = () => {
     }, []);
 
 
+    const eventRenderer = ({ eventRecord, resourceRecord, renderData }) => {
+        console.log(eventRecord,resourceRecord,renderData)
+        let prefix = '';
+
+        if (eventRecord.data.phase === "tekenwerk") renderData.eventColor = 'red';
+        if (eventRecord.data.phase === "ibs") renderData.eventColor = 'blue';
+
+        return eventRecord.name;
+    };
+
     return (
         <Fragment>
 
@@ -160,7 +172,7 @@ const App = () => {
                     toggleProjects={() => setShowProjects(!showProjects)}
                     toggleEmployees={() => setShowEmployees(!showEmployees)}
                 />
-                {showProjects && <BryntumScheduler resources={[
+                {showProjects && <BryntumScheduler eventRenderer={eventRenderer} resources={[
                     {id: 0, name: 'Niels', hours: 100, expanded: true},
                     {id: 1, name: 'Project', hours: 40, expanded: true, parentId: 0},
                     {id: 2, name: 'RK1', hours: 10, parentId: 1},
@@ -177,14 +189,14 @@ const App = () => {
                 {(showProjects && showEmployees) ? <BryntumSplitter/> : null}
                 {showEmployees &&
 
-                <BryntumScheduler ref={scheduler2Ref} resources={[
+                <BryntumScheduler eventRenderer={eventRenderer} ref={scheduler2Ref} resources={[
                     {
-                        id: 0,
+                        id: "Joris",
                         name: "Joris",
                         role: "tekenwerk",
                         important: false
                     }, {
-                        id: 1,
+                        id: "Johan",
                         name: "Johan",
                         role: "ibs",
                         important: false
