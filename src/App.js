@@ -20,7 +20,7 @@ const App = () => {
             id: 0,
             employeeID: 0,
             projectID: 2,
-            sharedID: "0000000",
+            eventId: "0000000",
             name: "test",
             phase: "tekenwerk",
             startDate: "2017-02-07 11:00",
@@ -65,14 +65,26 @@ const App = () => {
 
                     record.data.eventId = record.data.id
                     record.data.resourceId = record.data.employeeID
-                    scheduler2Ref.current.instance.eventStore.add(record.data)
+                    otherStore.add(record.data)
                 } else if (!storeBool) {
-                    console.log("Updating top")
                     record.data.eventId = record.data.id
                     record.data.resourceId = record.data.projectID
-                    scheduler1Ref.current.instance.eventStore.add(record.data)
+                    otherStore.add(record.data)
                 }
             }
+        },
+        [getOtherEventStore]
+    );
+
+    const onEventRemove = useCallback(
+        async ({source, records}) => {
+            const otherStore = getOtherEventStore(source);
+            for (let record of records){
+                const otherRecord = otherStore.findRecord("eventId", record.data.eventId);
+                otherStore.remove(otherRecord)
+
+            }
+
         },
         [getOtherEventStore]
     );
@@ -83,8 +95,8 @@ const App = () => {
 
         eventStore1.on("change", onEventChange);
         eventStore2.on("change", onEventChange);
-        updateAssignmentStore1()
-        updateAssignmentStore2()
+        eventStore1.on("remove", onEventRemove);
+        eventStore2.on("remove", onEventRemove);
     }, [onEventChange]);
 
     // This maps the events to the right resources
