@@ -6,9 +6,9 @@ import {DateHelper} from '@bryntum/scheduler/scheduler.umd';
 const schedulerConfig = {
     flex: '1 1 50%',
     tree: true,
-    resourceStore : {
+    resourceStore: {
         transformFlatData: true,
-        tree : true
+        tree: true
     },
 
     eventStyle: 'colored',
@@ -29,29 +29,50 @@ const schedulerConfig = {
     filterBarFeature: true,
     stripeFeature: true,
     timeRangesFeature: true,
-    treeFeature : true,
+    treeFeature: true,
 
     barMargin: 5,
-    rowHeight: 55,
+    rowHeight: 30,
 
     startDate: new Date(2017, 1, 7, 8),
     endDate: new Date(2017, 1, 7, 18),
     viewPreset: 'hourAndDay',
 
 
-    // Specialized body template with header and footer
-    eventBodyTemplate: data => `
-        <div class="b-sch-event-header">${data.headerText}</div>
-        <div class="b-sch-event-footer">${data.footerText}</div>
-    `,
+    features: {
+        eventEdit: {
+            // Uncomment to make event editor readonly from the start
+            // readOnly : true,
+            // Add items to the event editor
+            items: {
+                // resourceField : resourceComboConfig,
 
-    eventRenderer({eventRecord, resourceRecord, renderData}) {
-        renderData.style = 'background-color:' + resourceRecord.color;
+                // Using this ref hooks dynamic toggling of fields per eventType up
+                eventTypeField: {
+                    type: 'combo',
+                    name: 'phase',
+                    label: 'Fase',
+                    // Provided items start at 100, and go up in 100s, so insert after first one
+                    weight: 110,
+                    items: ['Tekenwerk']
+                },
+                eventEmployeeField: {
+                    type: 'combo',
+                    label: 'Werknemer',
+                    name: 'employeeID',
+                    editable: false,
+                    weight: 130,
+                    items: [0]
 
-        return {
-            headerText: DateHelper.format(eventRecord.startDate, this.displayDateFormat),
-            footerText: eventRecord.name || ''
-        };
+                },
+                linkField: {
+                    type: 'displayfield',
+                    label: 'Link',
+                    name: 'id',
+                    weight: 600,
+                }
+            }
+        }
     },
 };
 
@@ -81,39 +102,64 @@ const scheduler2Config = {
     filterBarFeature: true,
     stripeFeature: true,
     timeRangesFeature: true,
-    eventEditFeature: {
-        items: {
-            locationField: {
-                type: 'text',
-                name: 'location',
-                label: 'Location',
-                dataset: {eventType: 'Meeting'},
-                weight: 200
-            }
-        }
-    },
 
     barMargin: 5,
-    rowHeight: 55,
+    rowHeight: 40,
 
     startDate: new Date(2017, 1, 7, 8),
     endDate: new Date(2017, 1, 7, 18),
     viewPreset: 'hourAndDay',
 
-    // Specialized body template with header and footer
-    eventBodyTemplate: data => `
-        <div class="b-sch-event-header">${data.headerText}</div>
-        <div class="b-sch-event-footer">${data.footerText}</div>
-    `,
+    // // Specialized body template with header and footer
+    // eventBodyTemplate: data => `
+    //     <div class="b-sch-event-header">${data.headerText}</div>
+    //     <div class="b-sch-event-footer">${data.footerText}</div>
+    // `,
+    //
+    // eventRenderer({eventRecord, resourceRecord, renderData}) {
+    //     renderData.style = 'background-color:' + resourceRecord.color;
+    //
+    //     return {
+    //         headerText: DateHelper.format(eventRecord.startDate, this.displayDateFormat),
+    //         footerText: eventRecord.name || ''
+    //     };
+    // },
+    features: {
 
-    eventRenderer({eventRecord, resourceRecord, renderData}) {
-        renderData.style = 'background-color:' + resourceRecord.color;
+            eventEdit: {
+                // Uncomment to make event editor readonly from the start
+                // readOnly : true,
+                // Add items to the event editor
+                items: {
+                    // resourceField : resourceComboConfig,
 
-        return {
-            headerText: DateHelper.format(eventRecord.startDate, this.displayDateFormat),
-            footerText: eventRecord.name || ''
-        };
-    },
+                    // Using this ref hooks dynamic toggling of fields per eventType up
+                    eventNewTypeField: {
+                        type: 'combo',
+                        name: 'phase',
+                        label: 'Fase',
+                        // Provided items start at 100, and go up in 100s, so insert after first one
+                        weight: 110,
+                        items: ['Tekenwerk','ibs']
+                    },
+                    eventProjectField: {
+                        type: 'combo',
+                        label: 'Project',
+                        name: 'projectID',
+                        editable: false,
+                        weight: 130,
+                        items: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+                    },
+                    // linkField: {
+                    //     type: 'displayfield',
+                    //     label: 'Rool',
+                    //     name: 'role',
+                    //     weight: 600,
+                    // }
+                }
+            }
+        },
 };
 
 export {schedulerConfig, scheduler2Config};

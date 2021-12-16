@@ -9,49 +9,90 @@ import {
 } from '@bryntum/scheduler-react';
 import {schedulerConfig, scheduler2Config} from './AppConfig';
 import './App.scss';
-import Popup from "./components/Popup";
 import SideBar from "./components/SideBar";
 
 const App = () => {
-    const scheduler = useRef(null);
-    const scheduler2 = useRef(null);
+    const scheduler1Ref = useRef();
+    const scheduler2Ref = useRef();
 
     const [events, setEvents] = useState([
         {
             id: 0,
             employeeID: 0,
             projectID: 2,
+            sharedID: "0000000",
+            name: "test",
             phase: "tekenwerk",
             startDate: "2017-02-07 11:00",
             endDate: "2017-02-07 14:00"
         },
     ])
 
-    const [popupShown, showPopup] = useState(false);
-    const [eventRecord, setEventRecord] = useState(null);
-    const [eventStore, setEventStore] = useState(null);
-    const [resourceStore, setResourceStore] = useState(null);
-    const [assignmentStore, setAssignmentStore] = useState(null);
     const [showEmployees, setShowEmployees] = useState(true);
     const [showProjects, setShowProjects] = useState(true);
-    const [selectedEvent, setSelectedEvent] = useState('');
 
 
     useEffect(() => {
-        const {eventStore, resourceStore, assignmentStore} = scheduler.current.instance;
-        setEventStore(eventStore);
-        setResourceStore(resourceStore);
-        setAssignmentStore(assignmentStore);
-        updateAssignmentStore()
+        updateAssignmentStore1()
         updateAssignmentStore2()
 
     }, []);
 
+    const getOtherEventStore = useCallback((eventStore) => {
+        return eventStore === scheduler1Ref.current.instance.eventStore
+            ? scheduler2Ref.current.instance.eventStore
+            : scheduler1Ref.current.instance.eventStore;
+    }, []);
+    const getThisEventStore = useCallback((eventStore) => {
+        return eventStore === scheduler1Ref.current.instance.eventStore
+            ? scheduler1Ref.current.instance.eventStore
+            : scheduler2Ref.current.instance.eventStore;
+    }, []);
+
+
+    const onEventChange = useCallback(
+        async ({source, action, record}) => {
+            const otherStore = getOtherEventStore(source);
+            const thisStore = getThisEventStore(source);
+            const storeBool = source === scheduler1Ref.current.instance.eventStore
+            if (action === "update") {
+
+                const otherRecord = otherStore.findRecord("id", record.data.eventId);
+                if (otherRecord) {
+                    record.data.resourceId = otherRecord.data.resourceId
+                    otherRecord.set(record.data);
+                } else if (storeBool) {
+
+                    record.data.eventId = record.data.id
+                    record.data.resourceId = record.data.employeeID
+                    scheduler2Ref.current.instance.eventStore.add(record.data)
+                } else if (!storeBool) {
+                    console.log("Updating top")
+                    record.data.eventId = record.data.id
+                    record.data.resourceId = record.data.projectID
+                    scheduler1Ref.current.instance.eventStore.add(record.data)
+                }
+            }
+        },
+        [getOtherEventStore]
+    );
+
+    useEffect(() => {
+        const eventStore1 = scheduler1Ref.current.instance.eventStore;
+        const eventStore2 = scheduler2Ref.current.instance.eventStore;
+
+        eventStore1.on("change", onEventChange);
+        eventStore2.on("change", onEventChange);
+        updateAssignmentStore1()
+        updateAssignmentStore2()
+    }, [onEventChange]);
+
     // This maps the events to the right resources
-    const updateAssignmentStore = async () => {
-        const {eventStore, assignmentStore} = scheduler.current.instance;
+    const updateAssignmentStore1 = async () => {
+        const {eventStore, assignmentStore} = scheduler1Ref.current.instance;
         const tempAssignments = []
         for (let {data} of eventStore.allRecords) {
+
             tempAssignments.push({...data, resourceId: data.projectID, eventId: data.id})
         }
         await assignmentStore.loadDataAsync(tempAssignments);
@@ -60,8 +101,9 @@ const App = () => {
     }
 
     const updateAssignmentStore2 = async () => {
-        const {eventStore, assignmentStore} = scheduler2.current.instance;
+        const {eventStore, assignmentStore} = scheduler2Ref.current.instance;
         const tempAssignments = []
+
         for (let {data} of eventStore.allRecords) {
             tempAssignments.push({...data, resourceId: data.employeeID, eventId: data.id})
         }
@@ -71,43 +113,22 @@ const App = () => {
     }
 
     useEffect(() => {
-        if (showEmployees && showProjects) scheduler2.current.instance.addPartner(scheduler.current.instance);
+        if (showEmployees && showProjects) scheduler2Ref.current.instance.addPartner(scheduler1Ref.current.instance);
     }, [showEmployees, showProjects])
-
-    const showEditor = useCallback(eventRecord => {
-        setEventRecord(eventRecord);
-        showPopup(true);
-    }, []);
-
-    const hideEditor = useCallback(() => {
-        // If isCreating is still true, user clicked cancel
-        if (eventRecord.isCreating) {
-            eventStore.remove(eventRecord);
-            eventRecord.isCreating = false;
-        }
-        setEventRecord(null);
-        showPopup(false);
-    }, [eventRecord, eventStore]);
 
     /**
      * Show toast and set the selected event name.
      */
     const selectionChangeHandler = useCallback(({selection}) => {
         const phase = selection.length ? selection[0].phase : '';
-        setSelectedEvent(phase);
-
-        const schedulerObject = scheduler2.current?.instance;
-        if (!scheduler) {
+        const schedulerObject = scheduler2Ref.current?.instance;
+        if (!scheduler1Ref) {
             return;
         }
         schedulerObject.resourceStore.filter('role', phase)
 
     }, []);
 
-    const syncData = ({store, action, records}) => {
-        console.log(`${store.id} changed. The action was: ${action}. Changed records: `, records);
-        // Your sync data logic comes here
-    }
 
     return (
         <Fragment>
@@ -137,43 +158,29 @@ const App = () => {
                 ]}
                                                    events={events}
                                                    assignments={[]}
-                                                   ref={scheduler}
+                                                   ref={scheduler1Ref}
                                                    onEventSelectionChange={selectionChangeHandler}
-                                                   listeners={{
-                                                       beforeEventEdit: source => {
-                                                           source.eventRecord.resourceId = source.resourceRecord.id;
-                                                           showEditor(source.eventRecord);
-                                                           return false;
-                                                       }
-                                                   }}
-                                                   features={{nonWorkingTime: {disabled: false, hideRangesOnZooming: true}}}
-                                                   onDataChange={syncData}
                                                    {...schedulerConfig}
                 />}
                 {(showProjects && showEmployees) ? <BryntumSplitter/> : null}
                 {showEmployees &&
 
-                <BryntumScheduler ref={scheduler2} resources={[
+                <BryntumScheduler ref={scheduler2Ref} resources={[
                     {
                         id: 0,
                         name: "Joris",
                         role: "tekenwerk",
                         important: false
+                    }, {
+                        id: 1,
+                        name: "Johan",
+                        role: "ibs",
+                        important: false
                     },
 
                 ]} events={events} {...scheduler2Config} />
                 }
-                <div>
-                    {popupShown ? (
-                        <Popup
-                            text="Popup text"
-                            closePopup={hideEditor}
-                            eventRecord={eventRecord}
-                            eventStore={eventStore}
-                            resourceStore={resourceStore}
-                        />
-                    ) : null}
-                </div>
+
             </div>
         </Fragment>
     );
