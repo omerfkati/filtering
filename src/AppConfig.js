@@ -1,7 +1,8 @@
 /**
  * Scheduler config file
  */
-import {DateHelper} from '@bryntum/scheduler/scheduler.umd';
+import moment from "moment";
+
 
 const schedulerConfig = {
     flex: '1 1 50%',
@@ -21,9 +22,36 @@ const schedulerConfig = {
             field: 'name'
         },
         {
+            type: "aggregate",
             text: 'Uren',
             field: 'hours',
             width: 140,
+            renderer: (data,x,y) => {
+                if (data.record.events.length > 0) {
+                    let tot = 0
+
+                    for (let e of data.record.events) {
+                        const a = moment(e.data.startDate)
+                        const b = moment(e.data.endDate)
+
+
+                        tot += b.diff(a, "hours", true)
+                    }
+                    data.record.data.hours = tot
+                    return tot
+                }
+                if (data.record.children?.length > 0) {
+                    let tot = 0
+
+                    for (let r of data.record.children) {
+                        tot += r.hours || 0
+                    }
+                    return tot
+                }
+                data.record.data.hours = null
+
+                return null
+            },
         }
     ],
     filterBarFeature: true,
@@ -62,7 +90,7 @@ const schedulerConfig = {
                     name: 'employeeID',
                     editable: false,
                     weight: 130,
-                    items: ["Joris","Johan"]
+                    items: ["Joris", "Johan"]
 
                 },
                 linkField: {
@@ -144,7 +172,14 @@ const scheduler2Config = {
                     label: 'Fase',
                     // Provided items start at 100, and go up in 100s, so insert after first one
                     weight: 110,
-                    items: ['Tekenwerk', 'ibs']
+                    items: ['Tekenwerk', 'ibs', "niet productief"],
+                    listeners: {
+                        change: ({value, source}) => {
+                            const editor = source.parent;
+                            editor.widgetMap.eventProjectField.disabled = value == "niet productief";
+                        }
+                    }
+
                 },
                 eventProjectField: {
                     type: 'combo',
@@ -166,7 +201,6 @@ const scheduler2Config = {
     },
     listeners: {
         beforeEventEditShow({editor, eventRecord}) {
-            console.log(editor, eventRecord.data.phase)
             editor.widgetMap.linkField.value = eventRecord.data.phase
             // const
             //     equipmentCombo = editor.widgetMap.equipment,

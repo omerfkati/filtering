@@ -10,11 +10,26 @@ import {
 import {schedulerConfig, scheduler2Config} from './AppConfig';
 import './App.scss';
 import SideBar from "./components/SideBar";
+import DockRight from "./components/DockRight";
+import {useAuth0} from "@auth0/auth0-react";
 
 const App = () => {
+
     const scheduler1Ref = useRef();
     const scheduler2Ref = useRef();
+    const {user, isAuthenticated, isLoading, loginWithRedirect, getAccessTokenSilently, logout} = useAuth0();
 
+    if (!user && !isLoading) {
+        loginWithRedirect({redirectUri: window.location.origin})
+
+    }
+    const printToken = async () => {
+        const accessToken = await getAccessTokenSilently()
+        console.log(accessToken)
+    }
+    useEffect(()=>{
+        if (user) printToken()
+    },[user])
     const [events, setEvents] = useState([
         {
             id: 0,
@@ -54,11 +69,9 @@ const App = () => {
     const onEventChange = useCallback(
         async ({source, action, record}) => {
             const otherStore = getOtherEventStore(source);
-            const thisStore = getThisEventStore(source);
+            // const thisStore = getThisEventStore(source);
             const storeBool = source === scheduler1Ref.current.instance.eventStore
-            console.log(action, record)
             if (action === "update") {
-
                 const otherRecord = otherStore.findRecord("id", record.data.eventId);
                 if (otherRecord) {
                     record.data.resourceId = otherRecord.data.resourceId
@@ -106,7 +119,6 @@ const App = () => {
         const {eventStore, assignmentStore} = scheduler1Ref.current.instance;
         const tempAssignments = []
         for (let {data} of eventStore.allRecords) {
-            console.log(eventStore.allRecords)
             tempAssignments.push({...data, resourceId: data.projectID, eventId: data.id})
         }
         await assignmentStore.loadDataAsync(tempAssignments);
@@ -144,12 +156,12 @@ const App = () => {
     }, []);
 
 
-    const eventRenderer = ({ eventRecord, resourceRecord, renderData }) => {
-        console.log(eventRecord,resourceRecord,renderData)
-        let prefix = '';
+    const eventRenderer = ({eventRecord, resourceRecord, renderData}) => {
+
 
         if (eventRecord.data.phase === "tekenwerk") renderData.eventColor = 'red';
         if (eventRecord.data.phase === "ibs") renderData.eventColor = 'blue';
+        if (eventRecord.data.phase === "niet productief") renderData.eventColor = 'purple';
 
         return eventRecord.name;
     };
@@ -173,12 +185,12 @@ const App = () => {
                     toggleEmployees={() => setShowEmployees(!showEmployees)}
                 />
                 {showProjects && <BryntumScheduler eventRenderer={eventRenderer} resources={[
-                    {id: 0, name: 'Niels', hours: 100, expanded: true},
-                    {id: 1, name: 'Project', hours: 40, expanded: true, parentId: 0},
-                    {id: 2, name: 'RK1', hours: 10, parentId: 1},
-                    {id: 3, name: 'ZK2', hours: 10, parentId: 1},
-                    {id: 4, name: 'RK3', hours: 10, parentId: 1},
-                    {id: 5, name: 'RK4', hours: 10, parentId: 1}
+                    {id: 0, name: 'Niels', hours: null, expanded: true},
+                    {id: 1, name: 'Project', hours: null, expanded: true, parentId: 0},
+                    {id: 2, name: 'RK1', hours: null, parentId: 1},
+                    {id: 3, name: 'ZK2', hours: null, parentId: 1},
+                    {id: 4, name: 'RK3', hours: null, parentId: 1},
+                    {id: 5, name: 'RK4', hours: null, parentId: 1}
                 ]}
                                                    events={events}
                                                    assignments={[]}
@@ -206,6 +218,7 @@ const App = () => {
                 }
 
             </div>
+            <DockRight/>
         </Fragment>
     );
 };

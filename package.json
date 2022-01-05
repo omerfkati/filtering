@@ -23,9 +23,10 @@
     "node_modules/@bryntum/scheduler/fonts/*": "copy public/themes/fonts/"
   },
   "dependencies": {
+    "@auth0/auth0-react": "^1.8.0",
     "@bryntum/demo-resources": "1.0.1",
-    "@bryntum/scheduler": "npm:@bryntum/scheduler-trial@4.3.0",
-    "@bryntum/scheduler-react": "4.3.0",
+    "@bryntum/scheduler": "^4.3.4",
+    "@bryntum/scheduler-react": "^4.3.0",
     "@date-io/date-fns": "~1.3.9",
     "@emotion/react": "^11.5.0",
     "@emotion/styled": "^11.3.0",
@@ -37,8 +38,10 @@
     "bootstrap": "^5.1.3",
     "cross-env": "~7.0.2",
     "date-fns": "~2.0.1",
+    "moment": "^2.29.1",
     "react": "~16.14.0",
     "react-bootstrap": "^2.0.2",
+    "react-dock": "^0.4.1",
     "react-dom": "~16.14.0",
     "react-scripts": "~3.4.4"
   },
