@@ -3,9 +3,10 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import SettingsIcon from '@mui/icons-material/Settings';
 import PeopleIcon from '@mui/icons-material/People';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import SaveIcon from '@mui/icons-material/Save';
 import {IconButton, Grid} from "@mui/material";
 
-const SideBar = ({projects, employees, toggleProjects, toggleEmployees}) => {
+const SideBar = ({projects, employees, toggleProjects, toggleEmployees, save}) => {
     return (
         <Grid
             className={'sidenav'}
@@ -42,6 +43,11 @@ const SideBar = ({projects, employees, toggleProjects, toggleEmployees}) => {
                 justifyContent="flex-end"
                 alignItems="center">
 
+                <IconButton
+                    size={"large"}
+                    onClick={save}>
+                    <SaveIcon fontSize="inherit" sx={{color: "#fff"}}/>
+                </IconButton>
                 <IconButton size={"large"}>
                     <CalendarTodayIcon fontSize="inherit" sx={{color: "#fff"}}/>
                 </IconButton>

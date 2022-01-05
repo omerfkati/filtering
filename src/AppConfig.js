@@ -37,20 +37,14 @@ const schedulerConfig = {
 
                         tot += b.diff(a, "hours", true)
                     }
-                    data.record.data.hours = tot
-                    return tot
+
+                    return data.record.data.hours - tot
                 }
                 if (data.record.children?.length > 0) {
-                    let tot = 0
-
-                    for (let r of data.record.children) {
-                        tot += r.hours || 0
-                    }
-                    return tot
+                    return null
                 }
-                data.record.data.hours = null
 
-                return null
+                return data.record.data.hours
             },
         }
     ],

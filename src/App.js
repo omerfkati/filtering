@@ -12,6 +12,7 @@ import './App.scss';
 import SideBar from "./components/SideBar";
 import DockRight from "./components/DockRight";
 import {useAuth0} from "@auth0/auth0-react";
+import axios from "axios";
 
 const App = () => {
 
@@ -166,6 +167,11 @@ const App = () => {
         return eventRecord.name;
     };
 
+    const saveEvents = () =>{
+        console.log(scheduler1Ref.current.instance.eventStore.allRecords.map(x => x.data))
+        console.log(scheduler2Ref.current.instance.eventStore.allRecords.map(x => x.data))
+    }
+
     return (
         <Fragment>
 
@@ -183,14 +189,15 @@ const App = () => {
                     employees={showEmployees}
                     toggleProjects={() => setShowProjects(!showProjects)}
                     toggleEmployees={() => setShowEmployees(!showEmployees)}
+                    save={saveEvents}
                 />
                 {showProjects && <BryntumScheduler eventRenderer={eventRenderer} resources={[
                     {id: 0, name: 'Niels', hours: null, expanded: true},
                     {id: 1, name: 'Project', hours: null, expanded: true, parentId: 0},
-                    {id: 2, name: 'RK1', hours: null, parentId: 1},
-                    {id: 3, name: 'ZK2', hours: null, parentId: 1},
-                    {id: 4, name: 'RK3', hours: null, parentId: 1},
-                    {id: 5, name: 'RK4', hours: null, parentId: 1}
+                    {id: 2, name: 'RK1', hours: 40, parentId: 1},
+                    {id: 3, name: 'ZK2', hours: 20, parentId: 1},
+                    {id: 4, name: 'RK3', hours: 30, parentId: 1},
+                    {id: 5, name: 'RK4', hours: 10, parentId: 1}
                 ]}
                                                    events={events}
                                                    assignments={[]}
