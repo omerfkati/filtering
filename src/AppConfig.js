@@ -18,9 +18,9 @@ const schedulerConfig = {
         autoSync: true,
         autoLoad: true,
         transport: {
-            load: {
-                url: 'data/data.json'
-            },
+            // load: {
+            //     url: 'data/data.json'
+            // },
             sync: {
                 url: 'http://172.31.226.249:5000/post/info',
                 // specify Content-Type for requests
