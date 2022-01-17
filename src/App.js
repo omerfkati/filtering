@@ -28,9 +28,9 @@ const App = () => {
         const accessToken = await getAccessTokenSilently()
         console.log(accessToken)
     }
-    useEffect(()=>{
+    useEffect(() => {
         if (user) printToken()
-    },[user])
+    }, [user])
     const [events, setEvents] = useState([
         {
             id: 0,
@@ -69,11 +69,13 @@ const App = () => {
 
     const onEventChange = useCallback(
         async ({source, action, record}) => {
+            source.resourceData = undefined;
             const otherStore = getOtherEventStore(source);
             // const thisStore = getThisEventStore(source);
             const storeBool = source === scheduler1Ref.current.instance.eventStore
             if (action === "update") {
                 const otherRecord = otherStore.findRecord("id", record.data.eventId);
+
                 if (otherRecord) {
                     record.data.resourceId = otherRecord.data.resourceId
                     otherRecord.set(record.data);
@@ -83,6 +85,8 @@ const App = () => {
                     record.data.resourceId = record.data.employeeID
                     otherStore.add(record.data)
                 } else if (!storeBool) {
+
+
                     record.data.eventId = record.data.id
                     record.data.resourceId = record.data.projectID
                     otherStore.add(record.data)
@@ -167,8 +171,8 @@ const App = () => {
         return eventRecord.name;
     };
 
-    const saveEvents = () =>{
-        console.log(scheduler1Ref.current.instance.eventStore.allRecords.map(x => x.data))
+    const saveEvents = () => {
+        console.log(scheduler1Ref.current.instance.crudManager.sync())
         console.log(scheduler2Ref.current.instance.eventStore.allRecords.map(x => x.data))
     }
 

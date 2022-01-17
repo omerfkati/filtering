@@ -3,7 +3,6 @@
  */
 import moment from "moment";
 
-
 const schedulerConfig = {
     flex: '1 1 50%',
     tree: true,
@@ -11,6 +10,30 @@ const schedulerConfig = {
         transformFlatData: true,
         tree: true
     },
+    eventDragFeature: {
+        constrainDragToResource: true
+    },
+
+    crudManager: {
+        autoSync: true,
+        autoLoad: true,
+        transport: {
+            load: {
+                url: 'data/data.json'
+            },
+            sync: {
+                url: 'http://172.31.226.249:5000/post/info',
+                // specify Content-Type for requests
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            },
+        },
+        // This config enables response validation and dumping of found errors to the browser console.
+        // It's meant to be used as a development stage helper only so please set it to false for production systems.
+        validateResponse: true,
+    },
+
 
     // eventStyle: 'colored',
     // eventColor: null,
@@ -26,7 +49,7 @@ const schedulerConfig = {
             text: 'Uren',
             field: 'hours',
             width: 140,
-            renderer: (data,x,y) => {
+            renderer: (data, x, y) => {
                 if (data.record.events.length > 0) {
                     let tot = 0
 
@@ -82,7 +105,6 @@ const schedulerConfig = {
                     type: 'combo',
                     label: 'Werknemer',
                     name: 'employeeID',
-                    editable: false,
                     weight: 130,
                     items: ["Joris", "Johan"]
 
@@ -156,7 +178,14 @@ const scheduler2Config = {
                 // resourceField : resourceComboConfig,
                 resourceField: {
                     type: 'displayField',
-                    name: 'resourse',
+                    name: 'role',
+                    weight: 100,
+                    listeners: {
+                        change: ({value, source}) => {
+                            console.log(value, source)
+                        },
+                    },
+
                 },
 
                 // Using this ref hooks dynamic toggling of fields per eventType up
@@ -170,8 +199,8 @@ const scheduler2Config = {
                     listeners: {
                         change: ({value, source}) => {
                             const editor = source.parent;
-                            editor.widgetMap.eventProjectField.disabled = value == "niet productief";
-                        }
+                            editor.widgetMap.eventProjectField.disabled = value === "niet productief";
+                        },
                     }
 
                 },
