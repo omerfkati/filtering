@@ -26,7 +26,6 @@ const App = () => {
     }
     const printToken = async () => {
         const accessToken = await getAccessTokenSilently()
-        console.log(accessToken)
     }
     useEffect(() => {
         if (user) printToken()
